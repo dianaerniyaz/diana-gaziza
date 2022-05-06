@@ -1,4 +1,5 @@
 package com.example.demo.repository;
+
 import com.example.demo.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -6,41 +7,29 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    //1-task
+
+    User findByUsername(String username);
+
+    /** Jpa Methods */
+
+    // find top 2 users where name starts with `name`
+    List<User> findTop2ByNameStartsWith(String name);
+
+    // find users by name and surname (?1, ?2)
+    List<User> findByNameAndSurname(String name, String surname);
+
+    // find users where email contains `email` sorted by surname (asc)
+    List<User> findFirstByEmailContainingOrderBySurname(String email);
+
+    /** Native Query */
+
+    // find users where name starts with `A` order by surname (asc)
+    @Query(value = "select * from users where name like 'A%' order by surname", nativeQuery = true)
+    List<User> findAllSorted();
+
+    // find users where id greater than `qid`
+    @Query(value = "select * from users where id > :qid", nativeQuery = true)
+    List<User> findByGreaterId(Long qid);
+
     List<User> findByEmailEndingWith(String email);
-
-    //2-task
-    List<User> findTop2ByNameStartsWith(String task2);
-
-    //3-task
-    List<User> findBySurnameContaining(String task3);
-
-    //native query
-    //4-task
-    @Query(value = "select * from users order by id asc", nativeQuery = true)
-    List<User> findUsersByCustomQuery();
-
-    //5-task
-    @Query(value = "select * from users order by id desc limit 2", nativeQuery = true)
-    List<User> findLastInsertedId();
-
-    //6-task
-    @Query(value = "select * from users order by name desc", nativeQuery = true)
-    List<User> findUsersOrderByNameDesc();
-
-    //7-task
-    @Query( value="select *from users where email not like'%@%'", nativeQuery = true)
-    List <User> findByEmailNotContaining(String task7);
-
-    //8-task
-    @Query(value = "select * from users where name=surname", nativeQuery = true)
-    List<User> findByNameEqualsSurname();
-
-    //9-task
-    @Query(value = "select * from users where email like '%narxoz.kz' or email like '%gmail.com' or email like '%gmail.com'", nativeQuery = true)
-    List<User> findByEmailContains();
-
-    //10-task
-    @Query(value = "select distinct on (name) * from users", nativeQuery = true)
-    List<User> findDistinctByName();
 }

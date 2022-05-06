@@ -14,50 +14,37 @@ public class WebController {
     @Autowired
     UserRepository repository;
 
-    @GetMapping("/")
+    @GetMapping("")
     public String showUserList(@RequestParam(name = "email", required = false, defaultValue = "") String email,
-                               @RequestParam(name = "task2", required = false, defaultValue = "") String task2,
-                               @RequestParam(name = "task3", required = false, defaultValue = "") String task3,
-                               @RequestParam(name = "task4", required = false, defaultValue = "") String task4,
-                               @RequestParam(name = "task5", required = false, defaultValue = "") String task5,
-                               @RequestParam(name = "task6", required = false, defaultValue = "") String task6,
-                               @RequestParam(name = "task7", required = false, defaultValue = "") String task7,
-                               @RequestParam(name = "task8", required = false, defaultValue = "") String task8,
-                               @RequestParam(name = "task9", required = false, defaultValue = "") String task9,
-                               @RequestParam(name = "task10", required = false, defaultValue = "") String task10,
+                               @RequestParam(name = "name", required = false, defaultValue = "") String name,
+                               @RequestParam(name = "firstName", required = false, defaultValue = "") String firstName,
+                               @RequestParam(name = "lastName", required = false, defaultValue = "") String lastName,
+                               @RequestParam(name = "qid", required = false, defaultValue = "") Long qid,
+                               @RequestParam(name = "isSorted", required = false) boolean isSorted,
                                Model model) {
 
         List<User> users = repository.findAll();
 
+        // Check if `param` is not empty
+
         if (!email.isEmpty()) {
-            users = repository.findByEmailEndingWith(email);
+            users = repository.findFirstByEmailContainingOrderBySurname(email);
         }
-        if (!task2.isEmpty()) {
-            users = repository.findTop2ByNameStartsWith(task2);
+
+        else if (!firstName.isEmpty() && !lastName.isEmpty()) {
+            users = repository.findByNameAndSurname(firstName, lastName);
         }
-        if (!task3.isEmpty()) {
-            users = repository.findBySurnameContaining(task3);
+
+        else if (!name.isEmpty()) {
+            users = repository.findTop2ByNameStartsWith(name);
         }
-        if (!task4.isEmpty()) {
-            users = repository.findUsersByCustomQuery();
+
+        else if (qid != null) {
+            users = repository.findByGreaterId(qid);
         }
-        if (!task5.isEmpty()) {
-            users = repository.findLastInsertedId();
-        }
-        if (!task6.isEmpty()) {
-            users = repository.findUsersOrderByNameDesc();
-        }
-        if (!task7.isEmpty()) {
-            users = repository.findByEmailNotContaining(task7);
-        }
-        if (!task8.isEmpty()) {
-            users = repository.findByNameEqualsSurname();
-        }
-        if (!task9.isEmpty()) {
-            users = repository.findByEmailContains();
-        }
-        if (!task10.isEmpty()) {
-            users = repository.findDistinctByName();
+
+        else if (isSorted) {
+            users = repository.findAllSorted();
         }
 
         model.addAttribute("users", users);
